@@ -1,0 +1,39 @@
+<?php
+/**
+ * Shared legacy page header.
+ * The old horizontal menu has intentionally been removed. All authenticated
+ * navigation now lives in the professional sidebar rendered by index.php.
+ */
+error_reporting(0);
+if (session_status() !== PHP_SESSION_ACTIVE) session_start();
+include_once("dbconnection.php");
+$dt = date("Y-m-d");
+$tim = date("H:i:s");
+?>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>STATION HOSPITAL</title>
+<link rel="stylesheet" href="professional_assets/app.css" type="text/css"><link rel="stylesheet" href="professional_assets/theme.css.php" type="text/css">
+<link rel="stylesheet" href="css/font-awesome.css" type="text/css">
+<style>
+/* Legacy modules are displayed inside the professional dashboard workspace. */
+html,body{margin:0;padding:0;min-height:100%;}
+body{font-family:Inter,Segoe UI,Arial,sans-serif;background:#f4f7fb;color:#172033;}
+body::-webkit-scrollbar,html::-webkit-scrollbar{width:7px;height:7px}
+body::-webkit-scrollbar-thumb,html::-webkit-scrollbar-thumb{background:#aeb9c8;border-radius:999px}
+body::-webkit-scrollbar-track,html::-webkit-scrollbar-track{background:transparent}
+</style>
+<script>
+(function(){
+  try{
+    var lang=localStorage.getItem('hms-lang')||'en';
+    document.documentElement.lang=lang;
+    document.documentElement.dir=(lang==='ps'||lang==='fa')?'rtl':'ltr';
+  }catch(e){}
+})();
+</script>
+</head>
+<body>

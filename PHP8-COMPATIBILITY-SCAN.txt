@@ -1,0 +1,5 @@
+Static compatibility findings (legacy PHP files):
+
+- patientreport.php: removed each()
+
+Note: static scanning cannot replace running the application under PHP 8.x.

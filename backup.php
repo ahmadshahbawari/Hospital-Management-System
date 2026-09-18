@@ -1,0 +1,13 @@
+<?php
+require_once __DIR__.'/professional_assets/bootstrap_portal.php';
+require_role(['admin']);
+$tables=[];$res=$con->query('SHOW TABLES');while($r=$res->fetch_row())$tables[]=$r[0];
+if(isset($_GET['download']) && $_GET['download']==='sql'){
+ $name='station_backup_'.date('Y-m-d_H-i-s').'.sql';
+ $out="-- Hospital Management System backup\n-- Database: station\n-- Created: ".date('c')."\nSET NAMES utf8mb4;\nSET FOREIGN_KEY_CHECKS=0;\n\n";
+ foreach($tables as $t){$safe=$con->real_escape_string($t);$out.="DROP TABLE IF EXISTS `{$safe}`;\n";$cr=$con->query("SHOW CREATE TABLE `{$safe}`")->fetch_assoc();$out.=$cr['Create Table'].";\n\n";$rs=$con->query("SELECT * FROM `{$safe}`");while($row=$rs->fetch_assoc()){$vals=[];foreach($row as $v)$vals[]=$v===null?'NULL':"'".$con->real_escape_string((string)$v)."'";$out.="INSERT INTO `{$safe}` VALUES (".implode(',',$vals).");\n";} $out.="\n";}
+ $out.="SET FOREIGN_KEY_CHECKS=1;\n";try{$q=$con->prepare('INSERT INTO backup_history(filename,created_by) VALUES(?,?)');$u=$_SESSION['portal_login']??'admin';$q->bind_param('ss',$name,$u);$q->execute();log_action($con,'Database Backup',$name);}catch(Throwable $e){}
+ header('Content-Type: application/sql');header('Content-Disposition: attachment; filename="'.$name.'"');echo $out;exit;
+}
+?>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Database Backup</title><link rel="stylesheet" href="professional_assets/app.css"><link rel="stylesheet" href="professional_assets/theme.css.php"></head><body class="module-body"><div class="module-wrap"><div class="module-head"><div><span class="eyebrow">SYSTEM BACKUP</span><h1>Database Backup</h1><p>Protect the complete hospital database before major changes or GitHub updates.</p></div><a class="primary-btn" href="backup.php?download=sql">↓ Download Full SQL Backup</a></div><div class="panel"><h2>Recommended update workflow</h2><ol><li>Download a full SQL backup.</li><li>Commit and push your PHP/CSS/JS changes to GitHub.</li><li>Pull the updated code on the hospital computer.</li><li>If a release contains a database migration, import that SQL migration into the <strong>station</strong> database.</li></ol></div><div class="panel"><h2>Editable Excel templates</h2><p>Edit the files in <strong>excel_templates/</strong> on your computer to control the report design. The system reuses the template styles when generating matching reports.</p><p>Excel is now downloaded from the individual module. Open Patients, Doctors, Departments, Appointments, Finance, Attendance or Workers and use the <strong>Download Excel</strong> button at the top of that module.</p></div></div></body></html>
